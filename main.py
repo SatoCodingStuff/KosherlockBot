@@ -2,6 +2,7 @@ import discord
 import os
 from dotenv import load_dotenv
 import db
+import api
 
 load_dotenv()
 bot = discord.Bot()
@@ -13,7 +14,12 @@ async def on_ready():
 @bot.command(description="Link your deadlock account")
 async def link(ctx, steam_friend_code: discord.Option(str)):
     db.addUser(ctx.author.id, steam_friend_code)
-    await ctx.respond("Linked!")
+    await ctx.respond("Linked!", ephemeral=True)
+
+@bot.command()
+async def getrank(ctx):
+    id = db.getDeadlockId(ctx.author.id)
+    api.stylizedRank(api.getRank(id), api.getSubrank(id))
 
 @bot.command()
 async def embedtest(ctx):

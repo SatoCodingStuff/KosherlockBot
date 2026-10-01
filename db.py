@@ -23,5 +23,11 @@ except Exception as error:
 
 
 def addUser(discord_id, deadlock_id):
-    cursor.execute(f"INSERT INTO users (discord_id, deadlock_id, rank, subrank) VALUES ({discord_id}, {deadlock_id}, {api.getRank(deadlock_id)}, {api.getSubrank(deadlock_id)})")
+    cursor.execute(f"INSERT INTO users (discord_id, deadlock_id) VALUES ({discord_id}, {deadlock_id})")
     connection.commit()
+
+def getDeadlockId(discord_id):
+    cursor.execute(f"SELECT deadlock_id FROM users WHERE discord_id = '{discord_id}'")
+    results = cursor.fetchone()
+    connection.commit()
+    return results[0]

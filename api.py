@@ -2,14 +2,8 @@ import http.client
 import json
 
 conn = http.client.HTTPSConnection("api.deadlock-api.com")
-'''
-def getRank(id):
-    conn.request("GET", f"/v1/players/{id}/rank")
-    response = conn.getresponse().read().decode()
-    data = json.loads(response)
-    conn.close()
-    rank = data["rank"]
 
+def stylizedRank(rank, subrank):
     match rank:
         case 11:
             rank = "Initiate "
@@ -36,10 +30,7 @@ def getRank(id):
         case _:
             rank = "Obscurus "
 
-    rank += str(data["subrank"])
-
-    return rank
-    '''
+    return rank + str(subrank)
 
 def getRank(id):
     conn.request("GET", f"/v1/players/{id}/rank")
