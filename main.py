@@ -17,14 +17,21 @@ async def link(ctx, steam_friend_code: discord.Option(str)):
     await ctx.respond("Linked!", ephemeral=True)
 
 @bot.command()
-async def getrank(ctx):
-    id = db.getDeadlockId(ctx.author.id)
-    api.stylizedRank(api.getRank(id), api.getSubrank(id))
+async def getrank(ctx, user: discord.Member):
+    deadlock_id = db.getDeadlockId(user.id)
+
+    embed = discord.Embed(
+        title = f"{user.name}'s Rank is {api.stylizedRank(api.getRank(deadlock_id), api.getSubrank(deadlock_id))}",
+        description = "",
+        color = discord.Colour.blurple(),
+    )
+    await ctx.respond(embed = embed)
 
 @bot.command()
-async def embedtest(ctx):
+async def leaderboard(ctx):
     playerFieldText = ""
     rankFieldText = ""
+    topTen = db.getTopTen()
 
     embed = discord.Embed(
         title = "KosherLock Ranked Leaderboard!",
@@ -32,13 +39,10 @@ async def embedtest(ctx):
         color = discord.Colour.blurple(),
     )
 
-    embed.add_field(name = "", value = "**Player**", inline = True)
-    embed.add_field(name = "", value = "**Rank**", inline = True)
-
-    i = 1
-    while(i <= 10):
-        playerFieldText += "\n"
-        rankFieldText += "\n"
+    i = 0
+    while(i < 10):
+        playerFieldText += f"{i + 1}. <@{topTen[i][0]}>\n"
+        rankFieldText += f"**{api.stylizedRank(api.getRank(topTen[i][1]), api.getSubrank(topTen[i][1]))}**\n"
         i += 1
 
     embed.add_field(name = "\t", value = "\t", inline = True)
