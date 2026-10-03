@@ -33,9 +33,24 @@ def getDeadlockId(discord_id):
     connection.commit()
     return results[0]
 
-# Gets the top 10 players in ranked
-def getTopTen():
-    cursor.execute("SELECT discord_id, deadlock_id, rankscore FROM users ORDER BY rankscore DESC LIMIT 2")
+def getAllUsers():
+    cursor.execute(f"SELECT * FROM users")
     results = cursor.fetchall()
     connection.commit()
     return results
+
+# Gets the top 10 players in ranked
+def getTopTen():
+    cursor.execute("SELECT discord_id, deadlock_id, rankscore FROM users ORDER BY rankscore DESC LIMIT 10")
+    results = cursor.fetchall()
+    connection.commit()
+    return results
+
+def updateAllRankedScore():
+    users = getAllUsers()
+
+    i = 0
+    while(i < len(users)):
+        cursor.execute(f"UPDATE users SET rankscore = {api.getRankedScore(api.getRank(users[i][2]), api.getSubrank(users[i][2]))} WHERE discord_id = '{users[i][1]}' ")
+        i += 1
+    connection.commit()

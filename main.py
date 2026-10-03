@@ -5,6 +5,7 @@ import api
 from discord.ext import commands
 from discord.ext import tasks
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 bot = discord.Bot()
@@ -15,16 +16,11 @@ async def on_ready():
     updateLeaderboard.start()
 
 # Taken the top 10 players and orginized them in embed format.
-def enterLeaderboardFields(embed, playerFieldText, rankFieldText, topTen):
+def enterLeaderboardFields(embed, topTen):
     i = 0
-    while(i < 2):
-        playerFieldText += f"{i + 1}. <@{topTen[i][0]}>\n"
-        rankFieldText += f"**{api.stylizedRank(api.getRank(topTen[i][1]), api.getSubrank(topTen[i][1]))}**\n"
+    while(i < len(topTen)):
+        embed.add_field(name = "", value = f"{i + 1}. **<@{topTen[i][0]}>**    -    {api.stylizedRank(api.getRank(topTen[i][1]), api.getSubrank(topTen[i][1]))}\n", inline=False)
         i += 1
-
-    embed.add_field(name = "\t", value = "\t", inline = True)
-    embed.add_field(name = "", value = playerFieldText, inline = True)
-    embed.add_field(name = "", value = rankFieldText, inline = True)
 
 # Links steam account to discord account.
 @bot.command(description="Link your deadlock account")
@@ -50,8 +46,6 @@ async def getrank(ctx, user: discord.Member):
 @bot.command()
 @commands.has_any_role("Vampire society", 1554925366743933078)
 async def leaderboard(ctx):
-    playerFieldText = ""
-    rankFieldText = ""
     topTen = db.getTopTen()
 
     embed = discord.Embed(
@@ -60,13 +54,15 @@ async def leaderboard(ctx):
         color = discord.Colour.blurple(),
     )
 
-    enterLeaderboardFields(embed, playerFieldText, rankFieldText, topTen)
+    enterLeaderboardFields(embed, topTen)
 
     await ctx.respond(embed = embed)
 
 # Updates the leaderboard message.
 @tasks.loop(minutes=5)
 async def updateLeaderboard():
+    db.updateAllRankedScore()
+
     channel_id = "1555855369115275324"
     message_id = "1555866017157091329"
     playerFieldText = ""
@@ -79,7 +75,8 @@ async def updateLeaderboard():
 
     embed.clear_fields()
 
-    enterLeaderboardFields(embed, playerFieldText, rankFieldText, topTen)
+    enterLeaderboardFields(embed, topTen)
+    print("updated on: ", datetime.now())
     await message.edit(embed=embed)
 
 bot.run(os.getenv('TOKEN'))
