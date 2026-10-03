@@ -1,8 +1,10 @@
 import http.client
 import json
 
-conn = http.client.HTTPSConnection("api.deadlock-api.com")
+# Accesses the API
+HOST = "api.deadlock-api.com"
 
+# Takes a rank (as an integer) and a division and returns the rank emoji, rank and division.
 def stylizedRank(rank, subrank):
     match rank:
         case 11:
@@ -32,20 +34,27 @@ def stylizedRank(rank, subrank):
 
     return rank + " " + str(subrank)
 
+
+def fetchPlayerData(id, request):
+    conn = http.client.HTTPSConnection(HOST, timeout=10)
+    try:
+        conn.request("GET", request)
+        response = conn.getresponse()
+        if response.status == 200:
+            return json.loads(response.read().decode())
+        return {}
+    finally:
+        conn.close()
+
 def getRank(id):
-    conn.request("GET", f"/v1/players/{id}/rank")
-    response = conn.getresponse().read().decode()
-    data = json.loads(response)
-    conn.close()
+    data = fetchPlayerData(id, f"/v1/players/{id}/rank")
     return data["rank"]
 
 def getSubrank(id):
-    conn.request("GET", f"/v1/players/{id}/rank")
-    response = conn.getresponse().read().decode()
-    data = json.loads(response)
-    conn.close()
+    data = fetchPlayerData(id, f"/v1/players/{id}/rank")
     return data["subrank"]
 
+# returns a "ranked score" to sort player's as per their rank.
 def getRankedScore(rank, subrank):
     # I lowkey have no idea how this works
     # but seems like it works so ill keep it like this

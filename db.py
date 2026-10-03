@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 try:
+    # Connects to DB
     connection = psycopg2.connect(
         host=os.getenv('IP'),
         database=os.getenv('DB'),
@@ -32,8 +33,9 @@ def getDeadlockId(discord_id):
     connection.commit()
     return results[0]
 
+# Gets the top 10 players in ranked
 def getTopTen():
-    cursor.execute("SELECT discord_id, deadlock_id, rankscore FROM users ORDER BY rankscore DESC LIMIT 10")
+    cursor.execute("SELECT discord_id, deadlock_id, rankscore FROM users ORDER BY rankscore DESC LIMIT 2")
     results = cursor.fetchall()
     connection.commit()
     return results
