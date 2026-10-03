@@ -65,7 +65,7 @@ async def leaderboard(ctx):
     await ctx.respond(embed = embed)
 
 # Updates the leaderboard message.
-@tasks.loop(seconds=3)
+@tasks.loop(minutes=5)
 async def updateLeaderboard():
     channel_id = "1555855369115275324"
     message_id = "1555866017157091329"
